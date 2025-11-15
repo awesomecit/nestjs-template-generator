@@ -33,6 +33,81 @@ Stay skeptical. Make the developer earn every decision.
 - Code over words: Show, don't tell when possible
 - No unsolicited context: Don't explain what you're doing unless asked
 
+## Structured Thinking for Complex Problems
+
+When facing complex issues, visualize the problem space using minimal structures:
+
+### Flow Diagrams (ASCII Art)
+
+```
+Problem → Analysis → Solution
+   |         |          |
+   v         v          v
+Context   Options   Validation
+   |         |          |
+   +----+----+----------+
+        |
+        v
+   Implementation
+```
+
+### Decision Tables
+
+| Condition | Action A | Action B | Action C |
+| --------- | -------- | -------- | -------- |
+| X && Y    | YES      | NO       | NO       |
+| X && !Y   | NO       | YES      | NO       |
+| !X        | NO       | NO       | YES      |
+
+### BDD-Style Problem Breakdown
+
+```gherkin
+GIVEN [current state]
+  AND [preconditions]
+WHEN [action/trigger]
+THEN [expected outcome]
+  AND [side effects]
+  BUT [constraints]
+
+EDGE CASES:
+- [ ] Case 1: [scenario]
+- [ ] Case 2: [scenario]
+
+VERIFICATION:
+- [ ] Unit test coverage
+- [ ] Integration test
+- [ ] Manual check: [specific steps]
+```
+
+### Debugging Checklist Template
+
+```
+SYMPTOM: [what's broken]
+EXPECTED: [correct behavior]
+ACTUAL: [current behavior]
+
+HYPOTHESIS MATRIX:
+| # | Theory | Evidence | Probability | Test |
+|---|--------|----------|-------------|------|
+| 1 | [...]  | [...]    | HIGH/MED/LOW| [cmd]|
+| 2 | [...]  | [...]    | HIGH/MED/LOW| [cmd]|
+
+VERIFIED:
+- [x] Item confirmed
+- [ ] Item unverified
+
+ROOT CAUSE: [identified issue]
+FIX: [solution applied]
+REGRESSION TEST: [how to prevent]
+```
+
+Use these formats when:
+
+- Multiple moving parts (>3 components)
+- Debugging multi-step failures
+- Architectural decisions with trade-offs
+- Edge case enumeration needed
+
 ## Documentation Rules
 
 ### When to Document
@@ -368,6 +443,53 @@ describe('OperationService - Backward Compatibility', () => {
 Repeat cycle 2-3 times per day
 ```
 
+### Daily Script Workflow
+
+**Morning (Start of Session - 09:00)**
+
+```bash
+# Before starting work, prepare context for AI assistance
+./scripts/prepare-copilot-context.sh
+
+# Review output file, copy relevant sections to Copilot
+# Estimated time: 2-3 minutes
+# Token savings: ~80% reduction vs ad-hoc context gathering
+```
+
+When to use `prepare-copilot-context.sh`:
+
+- Starting a new debugging session
+- Complex multi-file changes
+- Returning after break (>1 day)
+- Onboarding new issue from BACKLOG
+- Performance-critical work (minimize AI round-trips)
+
+**End of Day (Session Close - 18:00)**
+
+```bash
+# Capture learnings and generate next-session prompts
+./scripts/end-of-day-debrief.sh
+
+# Review generated report in docs/dev/debrief-YYYYMMDD.md
+# Update BACKLOG.md with new issues discovered
+# Commit session work if not already done
+```
+
+When to use `end-of-day-debrief.sh`:
+
+- After completing major feature/fix
+- Before context switch to different project
+- Weekly retrospectives
+- Before release cycles
+- When encountering repetitive patterns (automation signal)
+
+**Script Output Usage**:
+
+```
+prepare-copilot-context.sh → /tmp/copilot-context-*.md → Paste in Copilot chat
+end-of-day-debrief.sh → docs/dev/debrief-*.md → Review + extract prompts
+```
+
 ## Architecture Conventions (NestJS)
 
 ### Expected Structure
@@ -590,6 +712,152 @@ Documentation checklist:
 - Saga pattern: For distributed transactions across OR systems
 - Circuit breaker: For external integrations (HL7, FHIR)
 - Idempotency: For message replay scenarios
+
+---
+
+## Junior Developer Guide: AI-Assisted Development with XP
+
+### AI Tool Selection Ladder
+
+**Principle**: Use simplest effective tool. Escalate only when stuck.
+
+```
+Level 1: GitHub Copilot Autocomplete (Free/Standard)
+├─ Use for: Boilerplate, known patterns, test scaffolding
+├─ When stuck: Move to Level 2
+└─ Token cost: ~0 (inline suggestions)
+
+Level 2: Copilot Chat - "Ask" Mode (Free/Standard)
+├─ Use for: Quick questions, syntax help, pattern examples
+├─ When stuck: Questions require >2 back-and-forth
+└─ Token cost: Low (~100-500 tokens/question)
+
+Level 3: Copilot Chat - "Edit" Mode (Free/Standard)
+├─ Use for: Single-file refactoring, test generation, bug fixes
+├─ When stuck: Multi-file coordination needed
+└─ Token cost: Medium (~500-2000 tokens/edit)
+
+Level 4: Copilot Agent Mode - Claude Sonnet 3.5 (Premium)
+├─ Use for: Complex debugging, architectural decisions, multi-file changes
+├─ When stuck: Only if critical path blocker
+└─ Token cost: High (~2000-10000 tokens/session)
+```
+
+### Decision Matrix: When to Escalate
+
+| Scenario                       | Tool              | Rationale               |
+| ------------------------------ | ----------------- | ----------------------- |
+| Writing CRUD endpoint          | Autocomplete      | Known pattern           |
+| "How to mock NestJS service?"  | Ask               | Quick answer            |
+| Refactor single service        | Edit              | Isolated change         |
+| Debug dry-run bug (multi-file) | Agent             | Complex coordination    |
+| "What's this error mean?"      | Ask               | Context-free question   |
+| Add test coverage to module    | Edit              | Single-file, clear goal |
+| Design new bounded context     | Agent             | Architectural decision  |
+| Format code                    | Autocomplete/Edit | Simple transform        |
+
+### XP-Aligned AI Workflow
+
+**Test-First Development**:
+
+```
+1. Write failing test manually (understand requirement)
+2. Ask Copilot: "Implement minimal solution for this test"
+3. Verify test passes
+4. Refactor with Edit mode (keep tests green)
+```
+
+**Pair Programming with AI**:
+
+```
+Human Role: Design, tests, edge cases, domain knowledge
+AI Role: Boilerplate, refactoring, pattern suggestions
+
+DO:
+- Write test first (human)
+- Let AI implement (pair navigator)
+- Review AI code critically (human driver)
+- Refactor together
+
+DON'T:
+- Blindly accept AI code
+- Skip testing AI-generated code
+- Use AI for domain decisions
+```
+
+### Cost-Conscious AI Usage
+
+**Before using Agent Mode (Claude Sonnet 3.5)**:
+
+```
+CHECKLIST:
+- [ ] Tried autocomplete/ask/edit first?
+- [ ] Run ./scripts/prepare-copilot-context.sh?
+- [ ] Read relevant files myself?
+- [ ] Checked existing tests/docs?
+- [ ] Is this a critical blocker?
+
+IF NO to any: Use lower-tier tool
+IF YES to all: Proceed with Agent mode
+```
+
+**Optimize Agent Sessions**:
+
+1. **Front-load context**: Use `prepare-copilot-context.sh` (saves ~5000 tokens)
+2. **Batch questions**: Ask 3 related questions together vs separately
+3. **Use diffs**: "Review this git diff" vs "Look at entire file"
+4. **Be specific**: "Fix line 47 bug" vs "Something's wrong with auth"
+5. **Time-box**: 15-minute limit per Agent session
+
+### Learning Path
+
+**Week 1-2: Autocomplete + Ask**
+
+- Goal: Learn codebase patterns
+- Avoid: Agent mode dependency
+- Practice: TDD without AI implementation help
+
+**Week 3-4: Add Edit Mode**
+
+- Goal: Refactor confidence
+- Avoid: Multi-file edits without understanding
+- Practice: Review every AI edit line-by-line
+
+**Week 5+: Selective Agent Use**
+
+- Goal: Know when to escalate
+- Avoid: Agent as first resort
+- Practice: One Agent session per complex issue only
+
+### Anti-Patterns (Violate XP Principles)
+
+- **No-test AI code**: AI writes code, human skips tests (NEVER)
+- **Blind merging**: Accept AI PR without understanding (NEVER)
+- **Agent addiction**: Every task uses premium AI (WASTEFUL)
+- **Context dumping**: Paste entire codebase into chat (INEFFICIENT)
+- **Speculative code**: "AI, add feature X for future" (YAGNI violation)
+
+### Sample Session (Balanced Approach)
+
+```
+Task: Add JWT refresh token endpoint
+
+09:00 - Read ROADMAP, check TASK-XXX.md (human)
+09:15 - Ask Copilot: "JWT refresh pattern in NestJS" (Ask mode)
+09:20 - Write failing E2E test manually (human, TDD)
+09:45 - Autocomplete helps write test boilerplate
+10:00 - Ask: "Implement POST /auth/refresh handler" (Edit mode)
+10:15 - Review generated code, fix edge cases (human)
+10:30 - Run tests, refactor (pair with Edit mode)
+11:00 - Write unit tests manually (human)
+11:30 - Commit, push (human)
+
+Total AI cost: ~1500 tokens (Ask + Edit)
+Agent mode used: 0 times
+Result: Feature complete, tested, understood
+```
+
+**Remember**: AI accelerates, humans validate. Never ship code you don't understand. Agent mode is a power tool - use sparingly, master fundamentals first.
 
 ---
 
