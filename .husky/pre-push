@@ -31,9 +31,9 @@ if [ -f "$CONFIG_FILE" ]; then
         const regex = new RegExp('^' + p.replace(/\*/g, '.*') + '$');
         return regex.test(branch);
       });
-      if (shouldSkip) { 
-        console.log('Skipping pre-push on branch ' + branch); 
-        process.exit(42); 
+      if (shouldSkip) {
+        console.log('Skipping pre-push on branch ' + branch);
+        process.exit(42);
       }
     } catch(e) { }
   " || test $? -eq 42 && exit 0
@@ -58,13 +58,13 @@ if [ -f "$CONFIG_FILE" ]; then
       const branch = '$CURRENT_BRANCH';
       const branchConfig = config.hooks['pre-push'].branches?.[branch];
       const tests = branchConfig?.tests || config.hooks['pre-push'].tests || {};
-      
+
       if (tests.unit) process.exit(10);
       if (tests.integration) process.exit(11);
       if (tests.e2e) process.exit(12);
     } catch(e) { }
   "
-  
+
   EXIT_CODE=$?
   if [ $EXIT_CODE -eq 10 ]; then
     echo "Running unit tests..."

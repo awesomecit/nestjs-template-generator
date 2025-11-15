@@ -29,6 +29,7 @@
 - **Priority**: Low
 - **Description**: Project lacks formal documentation structure per copilot-instructions
 - **Required Structure**:
+
   ```
   /docs/
   ├── dev/           # .gitignored, agent session notes
@@ -91,6 +92,33 @@
 - [ ] Define EPIC-001: Production deployment strategy
 - [ ] Define STORY-001: Monitoring and observability setup
 - [ ] Add security scanning (Snyk, Dependabot)
+
+## 🛠️ Compatibility / Deprecations
+
+### HUSKY-001: Husky v10 compatibility (DEPRECATED lines)
+
+- **Status**: Open
+- **Priority**: Low
+- **Discovered**: 2025-11-15
+- **Description**: Older Husky hook scripts often include the following two lines at the top of hook files:
+
+  ```sh
+  #!/usr/bin/env sh
+  . "$(dirname -- "$0")/_/husky.sh"
+  ```
+
+- **Problem**: These lines will fail under Husky v10.0.0 and newer in certain environments. The project should remove them from hook files that rely on the new Husky behaviour.
+- **Files Affected**: `.husky/commit-msg` (and possibly other hooks copied from older templates)
+- **Recommended Change**:
+  - Remove the two lines shown above from the top of `.husky/commit-msg` and other hook files.
+  - Ensure hook scripts remain executable and call tools (like `npx --no-install commitlint`) directly.
+  - Prefer the modern Husky installation/setup method documented by the Husky project.
+- **Acceptance Criteria**:
+  - [ ] `.husky/commit-msg` no longer contains the deprecated shebang and souring lines
+  - [ ] Hooks still execute correctly on developers' machines
+  - [ ] Add a short note in `CONTRIBUTING.md` about Husky version expectations
+- **Workaround**: If a developer has an older environment, use a local script wrapper or pin Husky to a compatible version in the local environment (not recommended long-term).
+
 - [ ] Performance benchmarking baseline
 
 ---

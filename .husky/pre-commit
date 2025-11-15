@@ -31,7 +31,7 @@ if [ -f "$CONFIG_FILE" ]; then
       const tests = config.hooks['pre-commit'].tests || {};
       const suites = config.testSuites || {};
       let hasTests = false;
-      
+
       if (tests.unit) {
         console.log('Running unit tests...');
         hasTests = true;
@@ -49,7 +49,7 @@ if [ -f "$CONFIG_FILE" ]; then
       }
     } catch(e) { }
   "
-  
+
   EXIT_CODE=$?
   if [ $EXIT_CODE -eq 10 ]; then
     npm test || exit 1
