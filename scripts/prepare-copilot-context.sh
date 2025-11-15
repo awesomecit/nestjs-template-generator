@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Usage:
 #   ./scripts/prepare-copilot-context.sh [optional-issue-description]
-#   
+#
 # Output:
 #   /tmp/copilot-context-$(date +%Y%m%d-%H%M%S).md
 # ==============================================================================
@@ -19,27 +19,40 @@ ISSUE_DESC="${2:-[DESCRIVI IL PROBLEMA QUI]}"
 
 echo "📝 Generating Copilot context..."
 
-cat > "$OUTPUT_FILE" << 'CONTEXT_START'
+# Pre-calculate all dynamic values
+PROJECT_NAME=$(jq -r '.name' package.json)
+PROJECT_VERSION=$(jq -r '.version' package.json)
+NODE_VERSION=$(jq -r '.engines.node' package.json 2>/dev/null || echo "N/A")
+TS_VERSION=$(jq -r '.devDependencies.typescript' package.json 2>/dev/null || echo "N/A")
+NEST_VERSION=$(jq -r '.dependencies."@nestjs/core"' package.json 2>/dev/null || echo "N/A")
+JEST_VERSION=$(jq -r '.devDependencies.jest' package.json 2>/dev/null || echo "N/A")
+PKG_MANAGER=$([ -f "pnpm-lock.yaml" ] && echo "pnpm" || [ -f "yarn.lock" ] && echo "yarn" || echo "npm")
+CURRENT_BRANCH=$(git branch --show-current)
+LAST_COMMIT=$(git log -1 --format='%h - %s (%cr)')
+SYNC_STATUS=$(git status -sb | head -1)
+UNCOMMITTED_COUNT=$(git status --porcelain | wc -l)
+
+cat > "$OUTPUT_FILE" << CONTEXT_START
 # Copilot Session Context
 > Generated: $(date -Iseconds)
-> Project: $(jq -r '.name' package.json) v$(jq -r '.version' package.json)
+> Project: $PROJECT_NAME v$PROJECT_VERSION
 
 ---
 
 ## 🔧 PROJECT SNAPSHOT
 
 **Stack:**
-- Runtime: Node $(jq -r '.engines.node' package.json 2>/dev/null || echo "N/A")
-- Language: TypeScript $(jq -r '.devDependencies.typescript' package.json 2>/dev/null || echo "N/A")
-- Framework: NestJS $(jq -r '.dependencies."@nestjs/core"' package.json 2>/dev/null || echo "N/A")
-- Test Runner: Jest $(jq -r '.devDependencies.jest' package.json 2>/dev/null || echo "N/A")
-- Package Manager: $([ -f "pnpm-lock.yaml" ] && echo "pnpm" || [ -f "yarn.lock" ] && echo "yarn" || echo "npm")
+- Runtime: Node $NODE_VERSION
+- Language: TypeScript $TS_VERSION
+- Framework: NestJS $NEST_VERSION
+- Test Runner: Jest $JEST_VERSION
+- Package Manager: $PKG_MANAGER
 
 **Repository State:**
-- Branch: $(git branch --show-current)
-- Last Commit: $(git log -1 --format='%h - %s (%cr)')
-- Sync Status: $(git status -sb | head -1)
-- Uncommitted: $(git status --porcelain | wc -l) files
+- Branch: $CURRENT_BRANCH
+- Last Commit: $LAST_COMMIT
+- Sync Status: $SYNC_STATUS
+- Uncommitted: $UNCOMMITTED_COUNT files
 
 ---
 
@@ -209,27 +222,6 @@ $(grep -A 5 "Status.*Open" docs/project/BACKLOG.md 2>/dev/null | head -30 || ech
 **🤖 Ready to paste into Copilot Chat**
 
 CONTEXT_START
-
-# Replace template variables
-sed -i "s|\$ISSUE_DESC|$ISSUE_DESC|g" "$OUTPUT_FILE"
-sed -i "s|\$(date -Iseconds)|$(date -Iseconds)|g" "$OUTPUT_FILE"
-sed -i "s|\$(jq -r '.name' package.json)|$(jq -r '.name' package.json)|g" "$OUTPUT_FILE"
-sed -i "s|\$(jq -r '.version' package.json)|$(jq -r '.version' package.json)|g" "$OUTPUT_FILE"
-sed -i "s|\$(jq -r '.engines.node' package.json 2>/dev/null \|\| echo \"N/A\")|$(jq -r '.engines.node' package.json 2>/dev/null || echo "N/A")|g" "$OUTPUT_FILE"
-sed -i "s|\$(jq -r '.devDependencies.typescript' package.json 2>/dev/null \|\| echo \"N/A\")|$(jq -r '.devDependencies.typescript' package.json 2>/dev/null || echo "N/A")|g" "$OUTPUT_FILE"
-sed -i "s|\$(jq -r '.dependencies.\"@nestjs/core\"' package.json 2>/dev/null \|\| echo \"N/A\")|$(jq -r '.dependencies."@nestjs/core"' package.json 2>/dev/null || echo "N/A")|g" "$OUTPUT_FILE"
-sed -i "s|\$(jq -r '.devDependencies.jest' package.json 2>/dev/null \|\| echo \"N/A\")|$(jq -r '.devDependencies.jest' package.json 2>/dev/null || echo "N/A")|g" "$OUTPUT_FILE"
-
-# Execute shell commands embedded in the template
-while IFS= read -r line; do
-  if [[ $line =~ \$\(([^)]+)\) ]]; then
-    cmd="${BASH_REMATCH[1]}"
-    result=$(eval "$cmd" 2>/dev/null || echo "N/A")
-    echo "${line//\$($cmd)/$result}"
-  else
-    echo "$line"
-  fi
-done < "$OUTPUT_FILE" > "${OUTPUT_FILE}.tmp" && mv "${OUTPUT_FILE}.tmp" "$OUTPUT_FILE"
 
 echo "✅ Context generated: $OUTPUT_FILE"
 echo ""

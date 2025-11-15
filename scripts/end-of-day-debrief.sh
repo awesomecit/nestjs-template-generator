@@ -31,19 +31,27 @@ TODAY=$(date +%Y-%m-%d)
 START_OF_DAY=$(git log --since="$TODAY 00:00" --format='%H' | tail -1)
 END_OF_DAY=$(git log -1 --format='%H')
 
-COMMITS_TODAY=$(git log --since="$TODAY 00:00" --oneline | wc -l)
+COMMITS_TODAY=$(git log --since="$TODAY 00:00" --oneline | wc -l | tr -d ' ')
 FILES_CHANGED=$(git diff --stat "$START_OF_DAY".."$END_OF_DAY" 2>/dev/null | tail -1 || echo "0 files changed")
 TESTS_ADDED=$(git diff "$START_OF_DAY".."$END_OF_DAY" -- '*.spec.ts' '*.test.ts' 2>/dev/null | grep -c '^+.*it(' || echo "0")
-LINES_ADDED=$(git diff --shortstat "$START_OF_DAY".."$END_OF_DAY" 2>/dev/null | grep -oP '\d+(?= insertion)' || echo "0")
-LINES_REMOVED=$(git diff --shortstat "$START_OF_DAY".."$END_OF_DAY" 2>/dev/null | grep -oP '\d+(?= deletion)' || echo "0")
+LINES_ADDED=$(git diff --shortstat "$START_OF_DAY".."$END_OF_DAY" 2>/dev/null | grep -oP '\d+(?= insertion)' || echo "0" | head -1)
+LINES_REMOVED=$(git diff --shortstat "$START_OF_DAY".."$END_OF_DAY" 2>/dev/null | grep -oP '\d+(?= deletion)' || echo "0" | head -1)
 
 # Test results
 TEST_RESULTS=$(npm test -- --passWithNoTests --silent 2>&1 | tail -20 || echo "Tests not run")
 COVERAGE=$(npm run test:coverage:check 2>&1 | grep -A 5 "Coverage summary" || echo "Coverage not available")
 
 # Code quality checks
-ESLINT_ISSUES=$(npm run lint 2>&1 | grep -c "problem" || echo "0")
-PRETTIER_ISSUES=$(npm run format:check 2>&1 | grep -c "Code style issues" || echo "0")
+ESLINT_ISSUES=$(npm run lint 2>&1 | grep -c "problem" 2>/dev/null || echo "0")
+PRETTIER_ISSUES=$(npm run format:check 2>&1 | grep -c "Code style issues" 2>/dev/null || echo "0")
+
+# Clean up whitespace from all numeric variables
+COMMITS_TODAY=$(echo "$COMMITS_TODAY" | tr -d ' \n')
+TESTS_ADDED=$(echo "$TESTS_ADDED" | tr -d ' \n')
+LINES_ADDED=$(echo "$LINES_ADDED" | tr -d ' \n')
+LINES_REMOVED=$(echo "$LINES_REMOVED" | tr -d ' \n')
+ESLINT_ISSUES=$(echo "$ESLINT_ISSUES" | tr -d ' \n')
+PRETTIER_ISSUES=$(echo "$PRETTIER_ISSUES" | tr -d ' \n')
 
 # ==============================================================================
 # GENERATE REPORT
@@ -105,8 +113,8 @@ $(grep -B 5 -A 10 "Discovered.*$TODAY" docs/project/BACKLOG.md 2>/dev/null || ec
 \`\`\`
 
 **Status Changes:**
-- Open → In Progress: $(git diff HEAD~$COMMITS_TODAY HEAD -- docs/project/BACKLOG.md | grep -c "Status.*In Progress" || echo "0")
-- In Progress → Completed: $(git diff HEAD~$COMMITS_TODAY HEAD -- docs/project/BACKLOG.md | grep -c "Status.*Completed" || echo "0")
+- Open → In Progress: $(git diff HEAD~"$COMMITS_TODAY" HEAD -- docs/project/BACKLOG.md 2>/dev/null | grep -c "Status.*In Progress" || echo "0")
+- In Progress → Completed: $(git diff HEAD~"$COMMITS_TODAY" HEAD -- docs/project/BACKLOG.md 2>/dev/null | grep -c "Status.*Completed" || echo "0")
 
 ---
 
@@ -156,25 +164,25 @@ $(git diff "$START_OF_DAY".."$END_OF_DAY" | grep -E '^\+.*@deprecated' || echo "
 ### Token Usage Estimate
 
 **Context Provided (estimated):**
-- Files read: $(git log --since="$TODAY 00:00" --format="" --name-only | wc -l) files
-- Avg file size: ~$(git diff "$START_OF_DAY".."$END_OF_DAY" --stat | awk '{sum+=$3} END {print int(sum/NR)}') lines
-- Estimated tokens sent: ~$(git log --since="$TODAY 00:00" --format="" --name-only | wc -l | awk '{print $1 * 500}') tokens
+- Files read: $(git log --since="$TODAY 00:00" --format="" --name-only | wc -l | tr -d ' ') files
+- Avg file size: ~$(git diff "$START_OF_DAY".."$END_OF_DAY" --stat 2>/dev/null | awk '{sum+=$3; count++} END {if(count>0) print int(sum/count); else print 0}') lines
+- Estimated tokens sent: ~$(git log --since="$TODAY 00:00" --format="" --name-only | wc -l | awk '{print int($1 * 500)}') tokens
 
 **Iterations per Issue:**
 \`\`\`
-$(git log --since="$TODAY 00:00" --format='%s' | grep -E 'fix|feat|refactor' | wc -l) commits ÷ $COMMITS_TODAY total = $(awk "BEGIN {print $COMMITS_TODAY > 0 ? $(git log --since="$TODAY 00:00" --format='%s' | grep -E 'fix|feat|refactor' | wc -l) / $COMMITS_TODAY : 0}") iterations per feature
+$(git log --since="$TODAY 00:00" --format='%s' | grep -E 'fix|feat|refactor' | wc -l | tr -d ' ') feature commits ÷ $COMMITS_TODAY total
 \`\`\`
 
 ### Optimization Opportunities
 
 **Redundant Operations (potential waste):**
-- Multiple reads of same file: $(git log --since="$TODAY 00:00" --format='%s' | grep -i "read\|check\|verify" | wc -l) operations
+- Multiple reads of same file: $(git log --since="$TODAY 00:00" --format='%s' | grep -i "read\|check\|verify" | wc -l | tr -d ' ') operations
 - Repeated grep patterns: [Manual review recommended]
 
 **Recommendations for Tomorrow:**
-1. Pre-compute grep patterns: $(git log --since="$TODAY 00:00" --format='%s' | grep -c "grep\|search" || echo "0") searches could be batched
-2. Use diff-first approach: $(git log --since="$TODAY 00:00" --format='%s' | grep -c "modify\|update" || echo "0") modifications could show diff instead of full file
-3. Create test harnesses: $(git log --since="$TODAY 00:00" --format='%s' | grep -c "test\|verify" || echo "0") verifications could be scripted
+1. Pre-compute grep patterns: $(git log --since="$TODAY 00:00" --format='%s' | grep -c "grep\|search" | tr -d ' ' || echo "0") searches could be batched
+2. Use diff-first approach: $(git log --since="$TODAY 00:00" --format='%s' | grep -c "modify\|update" | tr -d ' ' || echo "0") modifications could show diff instead of full file
+3. Create test harnesses: $(git log --since="$TODAY 00:00" --format='%s' | grep -c "test\|verify" | tr -d ' ' || echo "0") verifications could be scripted
 
 ---
 
@@ -182,8 +190,8 @@ $(git log --since="$TODAY 00:00" --format='%s' | grep -E 'fix|feat|refactor' | w
 
 ### High Priority
 - [ ] Review and close completed issues in BACKLOG.md
-- [ ] $([ "$ESLINT_ISSUES" -gt 0 ] && echo "Fix $ESLINT_ISSUES linting issues" || echo "✅ No linting issues")
-- [ ] $([ "$PRETTIER_ISSUES" -gt 0 ] && echo "Format $PRETTIER_ISSUES files" || echo "✅ Code formatted")
+- [ ] $([ "$ESLINT_ISSUES" -gt 0 ] 2>/dev/null && echo "Fix $ESLINT_ISSUES linting issues" || echo "✅ No linting issues")
+- [ ] $([ "$PRETTIER_ISSUES" -gt 0 ] 2>/dev/null && echo "Format $PRETTIER_ISSUES files" || echo "✅ Code formatted")
 - [ ] $(npm test -- --silent 2>&1 | grep -q "FAIL" && echo "Fix failing tests" || echo "✅ All tests passing")
 
 ### Code Quality
@@ -286,11 +294,11 @@ echo ""
 echo "🎯 TOP PRIORITIES FOR TOMORROW"
 echo "═══════════════════════════════"
 
-if [ "$ESLINT_ISSUES" -gt 0 ]; then
+if [ "$ESLINT_ISSUES" -gt 0 ] 2>/dev/null; then
   echo "❗ Fix $ESLINT_ISSUES linting issues"
 fi
 
-if [ "$PRETTIER_ISSUES" -gt 0 ]; then
+if [ "$PRETTIER_ISSUES" -gt 0 ] 2>/dev/null; then
   echo "❗ Format $PRETTIER_ISSUES files"
 fi
 
@@ -305,9 +313,12 @@ fi
 echo ""
 echo "💡 OPTIMIZATION TIPS FOR COPILOT"
 echo "═════════════════════════════════"
-echo "• $(git log --since="$TODAY 00:00" --format='%s' | grep -c "grep\|search" || echo "0") search operations - consider pre-batching"
-echo "• $(git log --since="$TODAY 00:00" --format='%s' | grep -c "read\|check" || echo "0") file reads - use diff-first approach"
-echo "• Estimated token usage today: ~$(git log --since="$TODAY 00:00" --format="" --name-only | wc -l | awk '{print $1 * 500}') tokens"
+SEARCH_OPS=$(git log --since="$TODAY 00:00" --format='%s' 2>/dev/null | { grep -c "grep\|search" || echo "0"; } 2>/dev/null)
+READ_OPS=$(git log --since="$TODAY 00:00" --format='%s' 2>/dev/null | { grep -c "read\|check" || echo "0"; } 2>/dev/null)
+TOKEN_EST=$(git log --since="$TODAY 00:00" --format="" --name-only 2>/dev/null | wc -l | awk '{print int($1 * 500)}')
+echo "• $SEARCH_OPS search operations - consider pre-batching"
+echo "• $READ_OPS file reads - use diff-first approach"
+echo "• Estimated token usage today: ~$TOKEN_EST tokens"
 echo ""
 echo "🚀 Ready for tomorrow!"
 echo ""
