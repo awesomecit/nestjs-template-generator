@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Validating commit message format..."
+npx --no-install commitlint --edit "$1"
+
+if [ $? -eq 0 ]; then
+  echo "✅ Commit message format is valid"
+else
+  echo "❌ Commit message format is invalid"
+  echo "📝 Please use conventional commit format:"
+  echo "   <type>[optional scope]: <description>"
+  echo "   Example: feat(api): add user authentication"
+  exit 1
+fi
