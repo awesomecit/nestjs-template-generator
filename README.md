@@ -2,6 +2,8 @@
 
 Reusable NestJS project template with built-in best practices, testing infrastructure, and developer experience features.
 
+Onboarding: If you're new to this repo, start with the [QUICKSTART guide](./docs/QUICKSTART.md) and read the [CONTRIBUTING guide](./CONTRIBUTING.md) for the development workflow and commit conventions.
+
 ## Features
 
 - **TypeScript** with strict mode and strong typing
