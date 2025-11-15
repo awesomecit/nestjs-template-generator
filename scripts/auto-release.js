@@ -370,7 +370,7 @@ class AutoRelease {
         console.log(`🧪 DRY RUN: Would calculate version for ${releaseType}`);
         // Anche in dry-run, calcoliamo la versione reale per simulazione accurata
         const versionOutput = this.execCommand(
-          `node scripts/version-calculator.js ${releaseType} --json`,
+          `node scripts/version-calculator.js ${releaseType} --json --dry-run`,
           true,
           true, // alwaysExecute = true per comandi di sola lettura
         );
