@@ -1,6 +1,6 @@
 {
   "name": "nestjs-template-generator",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "NestJS template with built-in best practices and developer experience features",
   "author": "",
   "private": true,
