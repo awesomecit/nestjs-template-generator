@@ -410,12 +410,19 @@ class AutoRelease {
 
     const filesToBackup = [this.packageJsonPath, this.changelogPath];
 
+    if (this.options.dryRun) {
+      filesToBackup.forEach(filePath => {
+        if (fs.existsSync(filePath)) {
+          console.log(`   🟡 DRY RUN: would backup ${path.basename(filePath)}`);
+        }
+      });
+      return;
+    }
+
     filesToBackup.forEach(filePath => {
       if (fs.existsSync(filePath)) {
         const backupPath = filePath + this.backupSuffix;
-        if (!this.options.dryRun) {
-          fs.copyFileSync(filePath, backupPath);
-        }
+        fs.copyFileSync(filePath, backupPath);
         console.log(`   📁 Backed up: ${path.basename(filePath)}`);
       }
     });
@@ -429,13 +436,23 @@ class AutoRelease {
 
     const filesToRestore = [this.packageJsonPath, this.changelogPath];
 
+    if (this.options.dryRun) {
+      filesToRestore.forEach(filePath => {
+        const backupPath = filePath + this.backupSuffix;
+        if (fs.existsSync(backupPath)) {
+          console.log(
+            `   🟡 DRY RUN: would restore ${path.basename(filePath)} from backup`,
+          );
+        }
+      });
+      return;
+    }
+
     filesToRestore.forEach(filePath => {
       const backupPath = filePath + this.backupSuffix;
       if (fs.existsSync(backupPath)) {
-        if (!this.options.dryRun) {
-          fs.copyFileSync(backupPath, filePath);
-          fs.unlinkSync(backupPath);
-        }
+        fs.copyFileSync(backupPath, filePath);
+        fs.unlinkSync(backupPath);
         console.log(`   📁 Restored: ${path.basename(filePath)}`);
       }
     });
@@ -452,11 +469,20 @@ class AutoRelease {
       this.changelogPath + this.backupSuffix,
     ];
 
+    if (this.options.dryRun) {
+      filesToCleanup.forEach(backupPath => {
+        if (fs.existsSync(backupPath)) {
+          console.log(
+            `   🟡 DRY RUN: would remove backup ${path.basename(backupPath)}`,
+          );
+        }
+      });
+      return;
+    }
+
     filesToCleanup.forEach(backupPath => {
       if (fs.existsSync(backupPath)) {
-        if (!this.options.dryRun) {
-          fs.unlinkSync(backupPath);
-        }
+        fs.unlinkSync(backupPath);
         console.log(`   🗑️  Removed: ${path.basename(backupPath)}`);
       }
     });
@@ -478,9 +504,12 @@ class AutoRelease {
         this.packageJsonPath,
         JSON.stringify(packageJson, null, 2) + '\n',
       );
+      console.log(`   ✅ Package version updated`);
+    } else {
+      console.log(
+        `   🟡 DRY RUN: package.json would be updated to ${newVersion}`,
+      );
     }
-
-    console.log(`   ✅ Package version updated`);
   }
 
   /**
@@ -792,13 +821,19 @@ $(git log --oneline --since="$(git describe --tags --abbrev=0 2>/dev/null || ech
           fs.readFileSync(packageLockPath, 'utf8'),
         );
         packageLock.version = versionInfo.newVersion;
-        fs.writeFileSync(
-          packageLockPath,
-          JSON.stringify(packageLock, null, 2) + '\n',
-        );
-        console.log(
-          `✅ Updated package-lock.json to v${versionInfo.newVersion}`,
-        );
+        if (!this.options.dryRun) {
+          fs.writeFileSync(
+            packageLockPath,
+            JSON.stringify(packageLock, null, 2) + '\n',
+          );
+          console.log(
+            `✅ Updated package-lock.json to v${versionInfo.newVersion}`,
+          );
+        } else {
+          console.log(
+            `🟡 DRY RUN: package-lock.json would be updated to v${versionInfo.newVersion}`,
+          );
+        }
       }
 
       // Fase 3: Genera changelog e release notes
