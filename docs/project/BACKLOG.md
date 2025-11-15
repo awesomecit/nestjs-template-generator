@@ -7,19 +7,15 @@
 
 ### BUG-001: auto-release.js dry-run modifies files
 
-- **Status**: Open
+- **Status**: ✅ **RESOLVED** (v0.2.0)
 - **Priority**: Medium
 - **Discovered**: 2025-11-15
+- **Resolved**: 2025-11-15
 - **Description**: Running `npm run release:suggest` (with `--dry-run` flag) actually modifies `package.json` and `package-lock.json` instead of just previewing changes.
-- **Expected**: Dry-run should NOT modify any files
-- **Actual**: Files are modified, requiring git restore or committing
-- **Impact**: Confusing UX, potentially dangerous if user expects no side effects
-- **Location**: `scripts/auto-release.js`
-- **Workaround**: Use `git restore package.json package-lock.json` after dry-run
-- **Fix Required**:
-  - Store modifications in memory during dry-run
-  - Print preview to console
-  - Only write to disk when `--dry-run` is NOT set
+- **Root Cause**: Missing `--dry-run` flag propagation to version-calculator.js in auto-release.js line 376
+- **Fix Applied**: Added `--dry-run` flag to execCommand when calling version-calculator.js
+- **Verification**: MD5 checksums of package.json and package-lock.json remain identical before/after dry-run execution
+- **Commit**: Included in v0.2.0 release (commit cb50cba)
 
 ## 🔧 Technical Debt
 
@@ -30,7 +26,7 @@
 - **Description**: Project lacks formal documentation structure per copilot-instructions
 - **Required Structure**:
 
-  ```
+  ```text
   /docs/
   ├── dev/           # .gitignored, agent session notes
   └── project/       # Version controlled
