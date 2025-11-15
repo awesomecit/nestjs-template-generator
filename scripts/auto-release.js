@@ -519,6 +519,11 @@ class AutoRelease {
   generateChangelog(version) {
     console.log('📖 Generating changelog...');
 
+    if (this.options.dryRun) {
+      console.log('   🟡 DRY RUN: Would generate changelog');
+      return;
+    }
+
     try {
       this.execCommand('npm run release:changelog');
       console.log('   ✅ Changelog generated');
@@ -534,6 +539,11 @@ class AutoRelease {
    */
   generateReleaseNotes(version, analysis) {
     console.log('📋 Generating release notes...');
+
+    if (this.options.dryRun) {
+      console.log('   🟡 DRY RUN: Would generate release notes');
+      return;
+    }
 
     try {
       this.execCommand('npm run release:notes');
@@ -554,7 +564,9 @@ class AutoRelease {
 
     console.log('🧪 Running tests...');
     this.execCommand('npm run test:coverage:check');
-    console.log('   ✅ Tests passed');
+    if (!this.options.dryRun) {
+      console.log('   ✅ Tests passed');
+    }
   }
 
   /**
@@ -568,7 +580,9 @@ class AutoRelease {
 
     console.log('🏗️ Building project...');
     this.execCommand('npm run build');
-    console.log('   ✅ Build completed');
+    if (!this.options.dryRun) {
+      console.log('   ✅ Build completed');
+    }
   }
 
   /**
