@@ -1,8 +1,8 @@
 # From Static Context to Agent-Driven Workflows: A Paradigm Shift in AI-Assisted Development
 
-**Author:** Antonio Cittadino  
-**Date:** November 15, 2025  
-**Tags:** AI Development, Token Optimization, Copilot Agent, XP Practices  
+**Author:** Antonio Cittadino
+**Date:** November 15, 2025
+**Tags:** AI Development, Token Optimization, Copilot Agent, XP Practices
 **Reading Time:** 12 min
 
 ---
@@ -53,7 +53,7 @@ EOF
 4. **No Learning:** Each session starts from scratch
 5. **Human Bottleneck:** Developer must generate, review, paste
 
-**Token Cost:** 2500 (static) + 500 (questions) = **3000 tokens**  
+**Token Cost:** 2500 (static) + 500 (questions) = **3000 tokens**
 **Time:** 5 min (generate) + 3 min (paste) + 10 min (debug) = **18 min**
 
 ---
@@ -115,7 +115,7 @@ Shows result, asks "Proceed?"
 Adapts based on findings
 ```
 
-**Token Cost:** 1000 (questions) + 500 (targeted reads) = **1500 tokens** (-50%)  
+**Token Cost:** 1000 (questions) + 500 (targeted reads) = **1500 tokens** (-50%)
 **Time:** 2 min (answer questions) + 5 min (debug) = **7 min** (-61%)
 
 ---
@@ -216,8 +216,8 @@ md5sum package.json (before/after dry-run)
 Result: Identical - fix verified
 ```
 
-**Total:** 800 tokens (vs 5000+ exploratory debugging)  
-**Time:** 7 minutes (vs 20+ minutes)  
+**Total:** 800 tokens (vs 5000+ exploratory debugging)
+**Time:** 7 minutes (vs 20+ minutes)
 **Iterations:** 2 (vs 15)
 
 ### Tier 3: End-of-Day Debrief (Automated)
@@ -588,7 +588,7 @@ Purpose: Capture learnings, update workflows
 
 ### 1. Agents Are Collaborative Partners, Not Servants
 
-**Old Mindset:** "Prepare everything for the agent"  
+**Old Mindset:** "Prepare everything for the agent"
 **New Mindset:** "Let the agent ask what it needs"
 
 Agents have sophisticated reasoning. Use it.
@@ -599,10 +599,10 @@ Pre-computing context assumes you know what's relevant. You don't. The agent dis
 
 ### 3. Workflows Beat Scripts (For AI)
 
-Bash scripts are for automation.  
+Bash scripts are for automation.
 Markdown workflows are for agent guidance.
 
-Scripts execute blindly.  
+Scripts execute blindly.
 Workflows adapt intelligently.
 
 ### 4. Feedback Loops Create Compound Gains
@@ -618,10 +618,10 @@ Without debrief → end-of-day → workflow update cycle, you plateau at Day 1 p
 
 ### 5. XP Principles Apply to AI Collaboration
 
-**Test-First:** Agent writes test, you verify  
-**Simple Design:** Agent proposes minimal fix  
-**Refactor:** Agent suggests improvements after green  
-**Small Iterations:** One hypothesis at a time  
+**Test-First:** Agent writes test, you verify
+**Simple Design:** Agent proposes minimal fix
+**Refactor:** Agent suggests improvements after green
+**Small Iterations:** One hypothesis at a time
 **Collective Ownership:** Agent shares context transparently
 
 ---
@@ -750,18 +750,18 @@ Agent asks questions → Agent gathers context → Agent acts
     (2 min, 200 token)    (1 min, 800 token)    (debug)
 ```
 
-**Shift:** Human → Agent control transfer  
+**Shift:** Human → Agent control transfer
 **Result:** 60-70% efficiency gain
 
 ### From One-Shot to Continuous
 
-**Old:** Each session starts from zero  
+**Old:** Each session starts from zero
 **New:** Each session builds on previous learnings
 
-**Old:** Static templates  
+**Old:** Static templates
 **New:** Evolving workflows
 
-**Old:** Manual optimization  
+**Old:** Manual optimization
 **New:** Automated feedback loops
 
 ### The Real Innovation
@@ -818,8 +818,8 @@ It's not the workflows themselves (though they're effective).
 - `docs/prompts/daily-debug-session.md` - Structured debugging
 - `scripts/end-of-day-debrief.sh` - Automated feedback
 
-**License:** MIT  
-**Contributions:** Welcome via PR  
+**License:** MIT
+**Contributions:** Welcome via PR
 **Discussion:** GitHub Issues
 
 ---
@@ -828,14 +828,14 @@ It's not the workflows themselves (though they're effective).
 
 Static context generation was a stepping stone. The real breakthrough is **letting AI agents drive their own context gathering** through structured, evolving workflows.
 
-The future isn't human → agent handoffs.  
+The future isn't human → agent handoffs.
 It's **human-agent collaboration through intelligent workflows**.
 
 And those workflows get smarter every single day.
 
 ---
 
-**Word Count:** ~4200  
-**Read Time:** ~17 min  
-**Version:** 2.0 (Paradigm Shift Edition)  
+**Word Count:** ~4200
+**Read Time:** ~17 min
+**Version:** 2.0 (Paradigm Shift Edition)
 **Published:** 2025-11-15

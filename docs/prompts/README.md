@@ -362,6 +362,6 @@ Per migliorare i workflow:
 
 ---
 
-**Maintainer:** Development Team  
-**License:** MIT  
+**Maintainer:** Development Team
+**License:** MIT
 **Last Updated:** 2025-11-15

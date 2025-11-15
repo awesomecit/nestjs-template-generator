@@ -54,7 +54,7 @@ Based on issue description keywords, read:
 
 Based on issue type, run appropriate searches:
 
-### If issue involves "dry-run" or "side effects":
+### If issue involves "dry-run" or "side effects"
 
 ```bash
 # Search for file writes
@@ -64,21 +64,21 @@ grep -rn "writeFileSync|writeFile|appendFile|copyFileSync" scripts/ --include="*
 grep -rn "dryRun|dry-run" scripts/ --include="*.js" | grep -E "if.*dryRun|--dry-run"
 ```
 
-### If issue involves "external calls":
+### If issue involves "external calls"
 
 ```bash
 # Search for script invocations
 grep -rn "execCommand.*\.js|execSync.*\.js" scripts/ --include="*.js"
 ```
 
-### If issue involves "file modifications":
+### If issue involves "file modifications"
 
 ```bash
 # Show MD5 checksums of suspected files
 md5sum package.json package-lock.json (or other relevant files)
 ```
 
-### If issue involves "test failures":
+### If issue involves "test failures"
 
 ```bash
 # Show recent test output
@@ -144,7 +144,7 @@ After fix applied:
 
 ## TOKEN OPTIMIZATION RULES
 
-### DO:
+### DO
 
 - ✅ Batch related questions (ask 3 things at once, not separately)
 - ✅ Use `git diff` instead of reading full files
@@ -152,7 +152,7 @@ After fix applied:
 - ✅ Read only relevant sections of large files
 - ✅ Show checksums instead of file contents when checking for changes
 
-### DON'T:
+### DON'T
 
 - ❌ Read entire files when `grep` suffices
 - ❌ Run same command twice
@@ -267,6 +267,6 @@ Goal: <10 min, <2000 token, <3 iterations
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2025-11-15  
+**Version:** 1.0.0
+**Last Updated:** 2025-11-15
 **Maintainer:** Development Team

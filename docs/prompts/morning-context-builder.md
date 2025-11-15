@@ -415,5 +415,5 @@ Date,Task,TokenUsed,TimeMin,Commits,Efficiency
 
 ---
 
-**Maintainer:** Development Team  
+**Maintainer:** Development Team
 **Feedback:** Open issue in repo or update this file directly

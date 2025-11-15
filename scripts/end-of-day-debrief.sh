@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Usage:
 #   ./scripts/end-of-day-debrief.sh [optional-output-file]
-#   
+#
 # Output:
 #   docs/dev/session-notes.md (appends) + terminal report
 # ==============================================================================
